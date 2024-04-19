@@ -286,11 +286,11 @@ public class SusVec3 {
       return new SusVec3(array[0], array[1], array[2]);
    }
 
-   public static<T extends Integer> Vec3 vec3FromCollection(Collection<T> collection) throws Exception {
+   public static<T extends Integer> Position vec3FromCollection(Collection<T> collection) throws Exception {
       if(collection.size() != 3) throw new Exception("collection size should be 3");
       Integer[] array = new Integer[3];
       collection.toArray(array);
-      return new Vec3(array[0], array[1], array[2]);
+      return new Position(array[0], array[1], array[2]);
    }
 
    @NotNull

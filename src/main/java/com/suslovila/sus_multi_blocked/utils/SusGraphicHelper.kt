@@ -51,7 +51,7 @@ object SusGraphicHelper {
         val destZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks
         glTranslated(pos.x - destX, pos.y - destY, pos.z - destZ)
     }
-    fun translateFromPlayerTo(pos : Vec3, partialTicks : Float){
+    fun translateFromPlayerTo(pos : Position, partialTicks : Float){
         val player = Minecraft.getMinecraft().thePlayer
         val destX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks
         val destY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks

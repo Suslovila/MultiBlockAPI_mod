@@ -4,7 +4,7 @@ import com.suslovila.sus_multi_blocked.common.item.ItemMultiBlockFormer;
 import com.suslovila.sus_multi_blocked.common.item.Modifier;
 import com.suslovila.sus_multi_blocked.common.item.MultiBlockWrapper;
 import com.suslovila.sus_multi_blocked.utils.SusNBTHelper;
-import com.suslovila.sus_multi_blocked.utils.Vec3;
+import com.suslovila.sus_multi_blocked.utils.Position;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -18,8 +18,8 @@ import java.util.ArrayList;
 
 public class PacketBlockModifiers implements IMessage {
     private ArrayList<Modifier> modifiers;
-    private Vec3 pos;
-    public PacketBlockModifiers(ArrayList<Modifier> modifiers, Vec3 pos) {
+    private Position pos;
+    public PacketBlockModifiers(ArrayList<Modifier> modifiers, Position pos) {
         this.modifiers = modifiers;
         this.pos = pos;
     }
@@ -40,7 +40,7 @@ public class PacketBlockModifiers implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        pos = Vec3.Companion.readFrom(buf);
+        pos = Position.Companion.readFrom(buf);
         ArrayList<Modifier> readModifiers = new ArrayList<>();
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {

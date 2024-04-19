@@ -11,7 +11,7 @@ public class ModBlocks {
 
     public static void register() {
 
-        GameRegistry.registerBlock(block,"someName");
+//        GameRegistry.registerBlock(block,"someName");
 
         //GameRegistry.registerTileEntity(...);
 

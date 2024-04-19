@@ -12,7 +12,7 @@ import com.suslovila.sus_multi_blocked.common.sync.PacketHandler
 import com.suslovila.sus_multi_blocked.common.sync.PacketSetGlobalModifiers
 import com.suslovila.sus_multi_blocked.utils.SerialiseType
 import com.suslovila.sus_multi_blocked.utils.SusNBTHelper.getOrCreateTag
-import com.suslovila.sus_multi_blocked.utils.Vec3
+import com.suslovila.sus_multi_blocked.utils.Position
 import com.suslovila.sus_multi_blocked.utils.collection.nextCycled
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
@@ -24,7 +24,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
-class GUIPlayerDetector(invPlayer: InventoryPlayer, multiBlockFormer: ItemStack, pos: Vec3) : GuiScreen() {
+class GUIPlayerDetector(invPlayer: InventoryPlayer, multiBlockFormer: ItemStack, pos: Position) : GuiScreen() {
 
     companion object {
         const val enterButtonKeyboardId = 28
@@ -33,7 +33,7 @@ class GUIPlayerDetector(invPlayer: InventoryPlayer, multiBlockFormer: ItemStack,
         private val modifiersMaxAmount = 10
     }
 
-    val pos: Vec3
+    val pos: Position
     lateinit var modifierNameTextFields: Array<GuiTextField>
     lateinit var valueTextFields: Array<GuiTextField>
     lateinit var fileNameField: GuiTextField

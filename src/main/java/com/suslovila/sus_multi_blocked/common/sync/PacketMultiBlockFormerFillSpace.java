@@ -35,8 +35,8 @@ public class PacketMultiBlockFormerFillSpace implements IMessage {
             if (stack == null) return null;
 
             if (stack.getItem() instanceof ItemMultiBlockFormer) {
-                Vec3 pos1 = MultiBlockWrapper.INSTANCE.getFirstBound(stack);
-                Vec3 pos2 = MultiBlockWrapper.INSTANCE.getSecondBound(stack);
+                Position pos1 = MultiBlockWrapper.INSTANCE.getFirstBound(stack);
+                Position pos2 = MultiBlockWrapper.INSTANCE.getSecondBound(stack);
                 if (pos1 == null || pos2 == null) {
                     PlayerInteractionHelper.INSTANCE.sendChatMessage(player, "Bounds were not specified correctly");
                 } else {

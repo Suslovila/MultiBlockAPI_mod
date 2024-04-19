@@ -3,7 +3,7 @@ package com.suslovila.sus_multi_blocked.common.sync;
 import com.suslovila.sus_multi_blocked.common.item.ItemMultiBlockFormer;
 import com.suslovila.sus_multi_blocked.common.item.MultiBlockWrapper;
 import com.suslovila.sus_multi_blocked.utils.PlayerInteractionHelper;
-import com.suslovila.sus_multi_blocked.utils.Vec3;
+import com.suslovila.sus_multi_blocked.utils.Position;
 import com.suslovila.sus_multi_blocked.utils.WorldHelper;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -36,8 +36,8 @@ public class PacketMultiBlockFormerWriteToFile implements IMessage {
             if (stack == null) return null;
 
             if (stack.getItem() instanceof ItemMultiBlockFormer) {
-                Vec3 pos1 = MultiBlockWrapper.INSTANCE.getFirstBound(stack);
-                Vec3 pos2 = MultiBlockWrapper.INSTANCE.getSecondBound(stack);
+                Position pos1 = MultiBlockWrapper.INSTANCE.getFirstBound(stack);
+                Position pos2 = MultiBlockWrapper.INSTANCE.getSecondBound(stack);
                 if (pos1 == null || pos2 == null) {
                     PlayerInteractionHelper.INSTANCE.sendChatMessage(player, "Bounds were not specified correctly");
                     return null;
@@ -47,7 +47,7 @@ public class PacketMultiBlockFormerWriteToFile implements IMessage {
                     return null;
                 }
                 AxisAlignedBB space = WorldHelper.INSTANCE.boundingBoxFromTwoPos(pos1, pos2);
-                Vec3 masterPos = MultiBlockWrapper.INSTANCE.getMasterPos(stack);
+                Position masterPos = MultiBlockWrapper.INSTANCE.getMasterPos(stack);
                 net.minecraft.util.Vec3 asCommonVec3 = net.minecraft.util.Vec3.createVectorHelper(masterPos.getX(), masterPos.getY(), masterPos.getZ());
                 if(!isVecInside(space, asCommonVec3)) {
                     PlayerInteractionHelper.INSTANCE.sendChatMessage(player, "Master Position is out of selected zone");

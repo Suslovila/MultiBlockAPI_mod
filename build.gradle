@@ -85,7 +85,7 @@ dependencies {
     //implementation 'net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev'
 
     annotationProcessor 'org.ow2.asm:asm-debug-all:5.0.3'
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+//    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
@@ -95,7 +95,7 @@ jar {
                 "Implementation-Title"       : project.name,
                 "Implementation-Version"     : project.version,
                 "TweakClass"                 : "org.spongepowered.asm.launch.MixinTweaker",
-                "MixinConfigs"               : "mixins.sus_multi_blocked.json",
+//                "MixinConfigs"               : "mixins.sus_multi_blocked.json",
                 "FMLCorePluginContainsFMLMod": "true",  // Не забываем указать эти два флага,
                 "ForceLoadAsMod"             : "true",               // чтобы Forge нормально загрузил и мод, и миксины
                 "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
@@ -124,13 +124,13 @@ processResources
 
 
 ext {
-    mixinSrg = new File(project.buildDir, 'mixins/mixin.sus_multi_blocked.srg')
-    mixinRefMapName = "mixins.sus_multi_blocked.refmap.json"
-    mixinRefMap = new File(project.buildDir, "mixins/" + mixinRefMapName)
+//    mixinSrg = new File(project.buildDir, 'mixins/mixin.sus_multi_blocked.srg')
+//    mixinRefMapName = "mixins.sus_multi_blocked.refmap.json"
+//    mixinRefMap = new File(project.buildDir, "mixins/" + mixinRefMapName)
 }
 
 jar {
-    from project.mixinRefMap
+//    from project.mixinRefMap
 }
 
 jar {
@@ -140,14 +140,14 @@ jar {
 }
 
 reobf {
-    addExtraSrgFile project.mixinSrg
+//    addExtraSrgFile project.mixinSrg
 }
 
 compileJava {
     options.compilerArgs += [
             '-Xlint:-processing',
-            "-AoutSrgFile=${project.mixinSrg.canonicalPath}",
-            "-AoutRefMapFile=${project.mixinRefMap.canonicalPath}",
+//            "-AoutSrgFile=${project.mixinSrg.canonicalPath}",
+//            "-AoutRefMapFile=${project.mixinRefMap.canonicalPath}",
             "-AreobfSrgFile=${project.file('build/srgs/mcp-srg.srg').canonicalPath}"
     ]
 }

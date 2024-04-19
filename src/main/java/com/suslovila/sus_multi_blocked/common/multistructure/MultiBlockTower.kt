@@ -1,10 +1,10 @@
 package com.suslovila.sus_multi_blocked.common.multistructure
 
-import com.suslovila.sus_multi_blocked.api.AdditionalData
-import com.suslovila.sus_multi_blocked.api.MultiStructure
-import com.suslovila.sus_multi_blocked.api.MultiStructureElement
+import com.suslovila.sus_multi_blocked.api.multiblock.AdditionalData
+import com.suslovila.sus_multi_blocked.api.multiblock.MultiStructure
+import com.suslovila.sus_multi_blocked.api.multiblock.MultiStructureElement
 import com.suslovila.sus_multi_blocked.utils.SusVec3
-import com.suslovila.sus_multi_blocked.utils.Vec3
+import com.suslovila.sus_multi_blocked.utils.Position
 import com.suslovila.sus_multi_blocked.utils.setTile
 import net.minecraft.block.Block
 import net.minecraft.entity.player.EntityPlayerMP
@@ -15,7 +15,7 @@ import net.minecraftforge.common.util.ForgeDirection
 import java.nio.file.Paths
 
 object MultiBlockTower : MultiStructure<TowerAdditionalData, TowerElement>(
-    Paths.get(".").toAbsolutePath().toString() + "/config/def.json",
+    Paths.get(".").toAbsolutePath().toString() + "/sus_multi_blocked/def.json",
     availableFacings = arrayListOf(
         ForgeDirection.DOWN,
         ForgeDirection.SOUTH,
@@ -33,7 +33,7 @@ object MultiBlockTower : MultiStructure<TowerAdditionalData, TowerElement>(
 
     }
 
-    override fun onCreated(world: World, masterWorldPosition: Vec3, player: EntityPlayerMP?) {
+    override fun onCreated(world: World, masterWorldPosition: Position, player: EntityPlayerMP?) {
 
     }
 }
@@ -50,7 +50,7 @@ class TowerElement(
 
     override fun construct(
         world: World,
-        masterWorldPosition: Vec3,
+        masterWorldPosition: Position,
         facing: ForgeDirection,
         angle : Int,
         player: EntityPlayerMP?

@@ -3,44 +3,23 @@ package com.suslovila.sus_multi_blocked;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 public class Config {
-    public static boolean pvpLiteEnabled = false;
-    public static int arenaWorldId;
-
-    public static boolean consumeEldritchDiaryAfterUse;
-    public static String structureOutputPath = "my_structure.json";
-
+    public static String structureOutputPath = "";
 
     public static void registerServerConfig(File modCfg) {
         Configuration cfg = new Configuration(modCfg);
         try {
 
-            //EXAMPLES
-
-            pvpLiteEnabled = cfg.getBoolean(
-				"EnablePvPLite",
-	            "PvPLite",
-	            false,
-	            "Включить ограничения для PvPLite мира");
-
-            arenaWorldId = cfg.getInt(
-				"PvPLiteWorldID",
-	            "PvPLite",
-	            666,
-	            0,
-	            Integer.MAX_VALUE,
-	            "ID PvPLite Мира"
-            );
-
             structureOutputPath = cfg.getString(
-				"ModPrefix",
+				"Structure default output path",
 	            "core",
-                    structureOutputPath,
-	            "Путь файла структур"
+                    Paths.get(".").toAbsolutePath() + "/sus_multi_blocked/",
+	            "the path is searched down from game folder"
             );
         } catch (Exception var8) {
-	        System.out.println("what");
+	        System.out.println("error init config for mod: " + SusMultiBlocked.MOD_ID);
         } finally {
             cfg.save();
         }

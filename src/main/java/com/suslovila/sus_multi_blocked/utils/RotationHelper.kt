@@ -47,7 +47,7 @@ object RotationHelper {
         return SusVec3.getVec3FromForgeDirection(facing)
     }
 
-    fun rotateOffsetFromOrientation(offset: Vec3, facing: ForgeDirection?): Vec3? {
+    fun rotateOffsetFromOrientation(offset: Position, facing: ForgeDirection?): Position? {
         when (facing) {
             ForgeDirection.DOWN -> {
                 return offset.xRot(180)
@@ -79,7 +79,7 @@ object RotationHelper {
         }
     }
 
-    fun spinOffsetFromOrientationByAngle(offset: Vec3, facing: ForgeDirection?, angle : Int): Vec3? {
+    fun spinOffsetFromOrientationByAngle(offset: Position, facing: ForgeDirection?, angle : Int): Position? {
         when (facing) {
             ForgeDirection.DOWN -> {
                 return offset.yRot(angle)

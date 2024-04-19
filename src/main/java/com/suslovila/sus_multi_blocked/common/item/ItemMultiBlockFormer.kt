@@ -1,6 +1,7 @@
 package com.suslovila.sus_multi_blocked.common.item
 
 import com.google.gson.stream.JsonWriter
+import com.suslovila.sus_multi_blocked.Config
 import com.suslovila.sus_multi_blocked.SusMultiBlocked
 import com.suslovila.sus_multi_blocked.api.GuiHandler
 import com.suslovila.sus_multi_blocked.common.item.MultiBlockWrapper.getBlockInfo
@@ -15,7 +16,7 @@ import com.suslovila.sus_multi_blocked.common.item.MultiBlockWrapper.setSecondBo
 import com.suslovila.sus_multi_blocked.utils.BlockHelper.isAbsoluteAir
 import com.suslovila.sus_multi_blocked.utils.PlayerInteractionHelper.sendChatMessage
 import com.suslovila.sus_multi_blocked.utils.SusNBTHelper.getOrCreateTag
-import com.suslovila.sus_multi_blocked.utils.Vec3
+import com.suslovila.sus_multi_blocked.utils.Position
 import com.suslovila.sus_multi_blocked.utils.WorldHelper.boundingBoxFromTwoPos
 import com.suslovila.sus_multi_blocked.utils.WorldHelper.forEachBlockPos
 import com.suslovila.sus_multi_blocked.utils.getBlock
@@ -26,11 +27,13 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.JsonToNBT
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.EnumChatFormatting
 import net.minecraft.world.World
 import java.io.FileWriter
-import java.nio.file.Paths
+import java.nio.file.Files
+import kotlin.io.path.Path
 
 class ItemMultiBlockFormer : Item() {
     init {
@@ -73,7 +76,7 @@ class ItemMultiBlockFormer : Item() {
                     player.openGui(SusMultiBlocked.MOD_ID, GuiHandler.GUI_MULTIBLOCK_FORMER, world, x, y, z)
                 } else {
                     if (!world.isRemote) {
-                        val masterPos = Vec3(x, y, z)
+                        val masterPos = Position(x, y, z)
                         stack.setMasterPos(masterPos)
                         player.sendChatMessage("Master position was successfully set to $masterPos")
                     }
@@ -124,10 +127,13 @@ fun writeToJsonFromZoneSelector(itemStack: ItemStack, world: World): Boolean {
     val globalModifiers = itemStack.getOrCreateTag().getModifiers()
     val masterPos = itemStack.getMasterPos()!!
     val masterPosAsClassicVec3 = net.minecraft.util.Vec3.createVectorHelper(masterPos.x.toDouble(), masterPos.y.toDouble(), masterPos.z.toDouble())
-    if(!space.isVecInside(masterPosAsClassicVec3)) {
 
-    }
-    val jsonPath = Paths.get(".").toAbsolutePath().toString() + "/config/${itemStack.getFileName()}"
+    val jsonPath = Files.createDirectories(Path(Config.structureOutputPath)).toString() + "\\" + itemStack.getFileName()
+//    val jsonPath = Config.structureOutputPath + itemStack.getFileName()
+//    val directory = File(jsonPath)
+//    if (!directory.exists()) {
+//        directory.mkdirs()
+//    }
     JsonWriter(FileWriter(jsonPath)).use { writer ->
         writer.beginArray()
         space.forEachBlockPos { blockPos ->

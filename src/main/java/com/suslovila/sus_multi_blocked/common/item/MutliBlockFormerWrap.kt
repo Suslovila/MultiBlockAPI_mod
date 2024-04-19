@@ -5,7 +5,7 @@ import com.suslovila.sus_multi_blocked.SusMultiBlocked
 import com.suslovila.sus_multi_blocked.utils.SerialiseType
 import com.suslovila.sus_multi_blocked.utils.SusNBTHelper.getOrCreateTag
 import com.suslovila.sus_multi_blocked.utils.SusVec3
-import com.suslovila.sus_multi_blocked.utils.Vec3
+import com.suslovila.sus_multi_blocked.utils.Position
 import cpw.mods.fml.common.network.ByteBufUtils
 import io.netty.buffer.ByteBuf
 import net.minecraft.item.ItemStack
@@ -45,12 +45,12 @@ object MultiBlockWrapper {
         this.getOrCreateTag().setIntArray(SECOND_BOUND_NAME, intArrayOf(x, y, z))
     }
 
-    fun ItemStack.getFirstBound(): Vec3? {
+    fun ItemStack.getFirstBound(): Position? {
         val bound = this.getOrCreateTag().getIntArray(FIRST_BOUND_NAME)
         return if (bound.size == 3) SusVec3.vec3FromCollection(bound.asList()) else null
     }
 
-    fun ItemStack.getSecondBound(): Vec3? {
+    fun ItemStack.getSecondBound(): Position? {
         val bound = this.getOrCreateTag().getIntArray(SECOND_BOUND_NAME)
         return if (bound.size == 3) SusVec3.vec3FromCollection(bound.asList()) else null
 
@@ -168,15 +168,15 @@ object MultiBlockWrapper {
         this.getOrCreateTag().setString(FILE_NAME, name)
     }
 
-    fun ItemStack.getBlockInfo(): MutableMap<Vec3, ArrayList<Modifier>> {
+    fun ItemStack.getBlockInfo(): MutableMap<Position, ArrayList<Modifier>> {
         getTagListWithBlocksInfo().let { tagWithBlockInfo ->
-            val info = mutableMapOf<Vec3, ArrayList<Modifier>>()
+            val info = mutableMapOf<Position, ArrayList<Modifier>>()
 
             for (blockInfoIndex in 0..tagWithBlockInfo.tagCount()) {
                 val tagWithSingleBlock = tagWithBlockInfo.getCompoundTagAt(blockInfoIndex)
 
                 val modifiers = tagWithSingleBlock.getModifiers() ?: continue
-                val pos = Vec3(
+                val pos = Position(
                     tagWithSingleBlock.getInteger("x"),
                     tagWithSingleBlock.getInteger("y"),
                     tagWithSingleBlock.getInteger("z")
@@ -199,7 +199,7 @@ object MultiBlockWrapper {
         return this.getTagList(MODIFIERS_NAME, TAG_COMPOUND)
     }
 
-    fun ItemStack.setBlockInfo(pos: Vec3, modifiers: ArrayList<Modifier>) {
+    fun ItemStack.setBlockInfo(pos: Position, modifiers: ArrayList<Modifier>) {
         val result = this.getTagListWithBlocksInfo().tagList.firstOrNull { tag ->
             if (tag !is NBTTagCompound) return@firstOrNull false
             return@firstOrNull (tag.getInteger("x") == pos.x &&
@@ -216,13 +216,13 @@ object MultiBlockWrapper {
         }
     }
 
-    fun ItemStack.setMasterPos(pos: Vec3) {
+    fun ItemStack.setMasterPos(pos: Position) {
         getOrCreateTag().setIntArray(MASTER_BLOCK_POS, intArrayOf(pos.x, pos.y, pos.z))
     }
-    fun ItemStack.getMasterPos() : Vec3? {
+    fun ItemStack.getMasterPos() : Position? {
         if(!this.getOrCreateTag().hasKey(MASTER_BLOCK_POS)) return null
         val array = getOrCreateTag().getIntArray(MASTER_BLOCK_POS)
-        return Vec3(array[0], array[1], array[2])
+        return Position(array[0], array[1], array[2])
     }
 }
 

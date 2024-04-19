@@ -1,7 +1,9 @@
-package com.suslovila.sus_multi_blocked.api
+package com.suslovila.sus_multi_blocked.api.multiblock
 
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
+import com.suslovila.sus_multi_blocked.api.SusTypeToken
+import com.suslovila.sus_multi_blocked.api.fromJsons
 import com.suslovila.sus_multi_blocked.utils.*
 import net.minecraft.block.Block
 import net.minecraft.entity.player.EntityPlayerMP
@@ -38,7 +40,7 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     }
 
 
-    fun tryConstruct(world: World, clickedPosition: Vec3, player: EntityPlayerMP?): Boolean {
+    fun tryConstruct(world: World, clickedPosition: Position, player: EntityPlayerMP?): Boolean {
         val block = world.getBlock(clickedPosition) ?: return false
 
         //to provide generating by clicking any block, we filter only available by block type
@@ -62,12 +64,12 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     }
 
 
-    private fun canConstruct(world: World, masterPosition: Vec3, facing: ForgeDirection, rotationAngle: Int): Boolean =
+    private fun canConstruct(world: World, masterPosition: Position, facing: ForgeDirection, rotationAngle: Int): Boolean =
         elements.all { it.canConstruct(world, masterWorldPosition = masterPosition, facing, rotationAngle) }
 
     private fun finaliseConstruction(
         world: World,
-        masterPosition: Vec3,
+        masterPosition: Position,
         facing: ForgeDirection,
         rotationAngle: Int,
         player: EntityPlayerMP?
@@ -76,16 +78,16 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
         onCreated(world, masterPosition, player)
     }
 
-    fun isStillValid(world: World, masterPosition: Vec3, facing: ForgeDirection, angle: Int) {
+    fun isStillValid(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int) : Boolean =
         elements.all { it.isStillValid(world, masterPosition, facing, angle) }
-    }
 
-    fun deconstruct(world: World, masterPosition: Vec3, facing: ForgeDirection, angle: Int) {
+
+    fun deconstruct(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int) {
         elements.forEach { it.deconstruct(world, masterPosition, facing, angle) }
     }
 
     abstract fun <T : TileEntity> render(tile: T, playersOffset: SusVec3, partialTicks: Float)
-    abstract fun onCreated(world: World, masterWorldPosition: Vec3, player: EntityPlayerMP?)
+    abstract fun onCreated(world: World, masterWorldPosition: Position, player: EntityPlayerMP?)
 }
 
 
@@ -98,10 +100,10 @@ abstract class MultiStructureElement<D : AdditionalData>(
 ) {
     lateinit var additionalData: D
 
-    val offset: Vec3
-        get() = Vec3(x, y, z)
+    val offset: Position
+        get() = Position(x, y, z)
 
-    fun getRealOffset(facing: ForgeDirection, angle : Int): Vec3 {
+    fun getRealOffset(facing: ForgeDirection, angle : Int): Position {
         val rotated = RotationHelper.rotateOffsetFromOrientation(this.offset, facing)  ?: throw Exception("Error rotating offset: ${this.offset}")
         val rotatedAndSpinned = RotationHelper.spinOffsetFromOrientationByAngle(rotated, facing, angle)
             ?: throw Exception("Error spinning offset: ${this.offset} by angle: $angle with facing: $facing")
@@ -110,7 +112,7 @@ abstract class MultiStructureElement<D : AdditionalData>(
 
     open fun canConstruct(
         world: World,
-        masterWorldPosition: Vec3,
+        masterWorldPosition: Position,
         facing: ForgeDirection,
         rotationAngle: Int
     ): Boolean {
@@ -132,7 +134,7 @@ abstract class MultiStructureElement<D : AdditionalData>(
 
     open fun construct(
         world: World,
-        masterWorldPosition: Vec3,
+        masterWorldPosition: Position,
         facing: ForgeDirection,
         angle: Int,
         player: EntityPlayerMP?,
@@ -143,7 +145,7 @@ abstract class MultiStructureElement<D : AdditionalData>(
 
     open fun isStillValid(
         world: World,
-        masterWorldPosition: Vec3,
+        masterWorldPosition: Position,
         facing: ForgeDirection,
         angle: Int
     ): Boolean {
@@ -157,7 +159,7 @@ abstract class MultiStructureElement<D : AdditionalData>(
 
     open fun deconstruct(
         world: World,
-        masterWorldPosition: Vec3,
+        masterWorldPosition: Position,
         facing: ForgeDirection,
         angle: Int
     ) {
@@ -168,7 +170,7 @@ abstract class MultiStructureElement<D : AdditionalData>(
         world.setBlock(realPos.x, realPos.y, realPos.z, Block.getBlockFromName(storedBlock), meta, 2)
     }
 
-    fun getRealPos(masterPosition: Vec3, facing: ForgeDirection, angle: Int) =
+    fun getRealPos(masterPosition: Position, facing: ForgeDirection, angle: Int) =
         masterPosition + getRealOffset(facing, angle)
 
     abstract fun putAdditionalData()
