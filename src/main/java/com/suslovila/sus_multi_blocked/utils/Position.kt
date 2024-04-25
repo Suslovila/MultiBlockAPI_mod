@@ -105,7 +105,6 @@ fun World.getBlockMetadata(pos: Position): Int {
 fun World.setBlock(pos: Position, block: Block) {
     this.setBlock(pos.x, pos.y, pos.z, block)
 }
-
 fun World.setBlock(pos: Position, block: Block, meta: Int, flags: Int) {
     this.setBlock(pos.x, pos.y, pos.z, block, meta, flags)
 }

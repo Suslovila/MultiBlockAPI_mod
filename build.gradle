@@ -173,3 +173,13 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+tasks.register('deobfJar', Jar) {
+    from sourceSets.main.output
+    archiveClassifier.set('deobf')
+}
+
+tasks.register('sourceJar', Jar) {
+    from sourceSets.main.allSource
+    archiveClassifier.set('sources')
+}
+build.finalizedBy deobfJar, sourceJar

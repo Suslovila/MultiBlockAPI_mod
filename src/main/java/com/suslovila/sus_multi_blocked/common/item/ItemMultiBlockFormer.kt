@@ -46,10 +46,17 @@ class ItemMultiBlockFormer : Item() {
 
     override fun onItemRightClick(itemStackIn: ItemStack?, worldIn: World?, player: EntityPlayer?): ItemStack? {
         if (itemStackIn == null || worldIn == null || player == null) return itemStackIn
-        if (itemStackIn.getMode() == MultiBlockWrapper.MODE.ZONE_SELECTOR) player.openGui(
-            SusMultiBlocked.MOD_ID, GuiHandler.GUI_MULTIBLOCK_FORMER, worldIn, player.posX.toInt(), player.posY.toInt(),
-            player.posZ.toInt()
-        )
+        if (itemStackIn.getMode() == MultiBlockWrapper.MODE.ZONE_SELECTOR) {
+            player.openGui(
+                SusMultiBlocked.MOD_ID,
+                GuiHandler.GUI_MULTIBLOCK_FORMER,
+                worldIn,
+                player.posX.toInt(),
+                player.posY.toInt(),
+                player.posZ.toInt()
+            )
+            return itemStackIn;
+        }
         return super.onItemRightClick(itemStackIn, worldIn, player)
     }
 
@@ -126,7 +133,11 @@ fun writeToJsonFromZoneSelector(itemStack: ItemStack, world: World): Boolean {
     val blocksInfo = itemStack.getBlockInfo()
     val globalModifiers = itemStack.getOrCreateTag().getModifiers()
     val masterPos = itemStack.getMasterPos()!!
-    val masterPosAsClassicVec3 = net.minecraft.util.Vec3.createVectorHelper(masterPos.x.toDouble(), masterPos.y.toDouble(), masterPos.z.toDouble())
+    val masterPosAsClassicVec3 = net.minecraft.util.Vec3.createVectorHelper(
+        masterPos.x.toDouble(),
+        masterPos.y.toDouble(),
+        masterPos.z.toDouble()
+    )
 
     val jsonPath = Files.createDirectories(Path(Config.structureOutputPath)).toString() + "\\" + itemStack.getFileName()
 //    val jsonPath = Config.structureOutputPath + itemStack.getFileName()

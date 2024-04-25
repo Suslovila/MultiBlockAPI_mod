@@ -204,7 +204,7 @@ class GUIPlayerDetector(invPlayer: InventoryPlayer, multiBlockFormer: ItemStack,
         fontRendererObj.drawString(multiBlockFormer.getMode().toString(), guiLeft + 80, guiTop - 10, 0xFFFFFF)
         modifierNameTextFields.forEach { it.drawTextBox() }
         valueTextFields.forEach { it.drawTextBox() }
-        if(isZoneSelector) fileNameField.drawTextBox()
+        if (isZoneSelector) fileNameField.drawTextBox()
         val prevLevel = this.zLevel
         this.zLevel = -99f
         val names = hashMapOf<String, Int>()
@@ -266,9 +266,9 @@ class GUIPlayerDetector(invPlayer: InventoryPlayer, multiBlockFormer: ItemStack,
         }
 
         for (id in valueTextFields.indices) {
-            val field = valueTextFields[id];
+            val field = valueTextFields[id]
             if (isMouseOnField(field, xClick, yClick)) {
-                if(modifierTypes[id] == SerialiseType.BOOLEAN){
+                if (modifierTypes[id] == SerialiseType.BOOLEAN) {
                     field.text = (!(valueTextFields[id].text.toBoolean())).toString()
                     return
                 }

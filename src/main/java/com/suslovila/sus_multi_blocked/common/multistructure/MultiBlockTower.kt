@@ -3,10 +3,12 @@ package com.suslovila.sus_multi_blocked.common.multistructure
 import com.suslovila.sus_multi_blocked.api.multiblock.AdditionalData
 import com.suslovila.sus_multi_blocked.api.multiblock.MultiStructure
 import com.suslovila.sus_multi_blocked.api.multiblock.MultiStructureElement
+import com.suslovila.sus_multi_blocked.api.multiblock.VALIDATION_TYPE
 import com.suslovila.sus_multi_blocked.utils.SusVec3
 import com.suslovila.sus_multi_blocked.utils.Position
 import com.suslovila.sus_multi_blocked.utils.setTile
 import net.minecraft.block.Block
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.init.Blocks
 import net.minecraft.tileentity.TileEntity
@@ -15,14 +17,16 @@ import net.minecraftforge.common.util.ForgeDirection
 import java.nio.file.Paths
 
 object MultiBlockTower : MultiStructure<TowerAdditionalData, TowerElement>(
-    Paths.get(".").toAbsolutePath().toString() + "/sus_multi_blocked/def.json",
+    Paths.get(".").toAbsolutePath().toString() + "/sus_multi_blocked/default_structure_name.json",
     availableFacings = arrayListOf(
         ForgeDirection.DOWN,
         ForgeDirection.SOUTH,
         ForgeDirection.EAST,
     ),
     dataClass = TowerElement::class.java,
-    rotatable = true
+    rotatable = true,
+    validationType = VALIDATION_TYPE.EACH_BLOCK
+
 ) {
     val tiles = hashMapOf<String, () -> TileEntity?>(
         "spire" to ::TileEntity,
@@ -33,7 +37,13 @@ object MultiBlockTower : MultiStructure<TowerAdditionalData, TowerElement>(
 
     }
 
-    override fun onCreated(world: World, masterWorldPosition: Position, player: EntityPlayerMP?) {
+     override fun onCreated(
+        world: World,
+        masterWorldPosition: Position,
+        facing: ForgeDirection,
+        angle: Int,
+        player: EntityPlayer?
+    ) {
 
     }
 }
@@ -52,8 +62,8 @@ class TowerElement(
         world: World,
         masterWorldPosition: Position,
         facing: ForgeDirection,
-        angle : Int,
-        player: EntityPlayerMP?
+        angle: Int,
+        player: EntityPlayer?
 
     ) {
         super.construct(world, masterWorldPosition, facing, angle, player)

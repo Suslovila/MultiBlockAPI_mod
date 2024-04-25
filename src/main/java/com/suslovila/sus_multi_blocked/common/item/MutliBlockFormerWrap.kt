@@ -74,7 +74,6 @@ object MultiBlockWrapper {
     }
 
     fun NBTTagCompound.setModifiers(modifiers: ArrayList<Modifier>) {
-        print("ULALALA")
         getTagListWithModifiers().let { tagList ->
             tagList.tagList.clear()
             for (modifier in modifiers) {
@@ -176,11 +175,8 @@ object MultiBlockWrapper {
                 val tagWithSingleBlock = tagWithBlockInfo.getCompoundTagAt(blockInfoIndex)
 
                 val modifiers = tagWithSingleBlock.getModifiers() ?: continue
-                val pos = Position(
-                    tagWithSingleBlock.getInteger("x"),
-                    tagWithSingleBlock.getInteger("y"),
-                    tagWithSingleBlock.getInteger("z")
-                )
+                val pos = Position.readFrom(tagWithSingleBlock)
+
                 info[pos] = modifiers
             }
             return info
@@ -202,9 +198,7 @@ object MultiBlockWrapper {
     fun ItemStack.setBlockInfo(pos: Position, modifiers: ArrayList<Modifier>) {
         val result = this.getTagListWithBlocksInfo().tagList.firstOrNull { tag ->
             if (tag !is NBTTagCompound) return@firstOrNull false
-            return@firstOrNull (tag.getInteger("x") == pos.x &&
-                    tag.getInteger("y") == pos.y &&
-                    tag.getInteger("z") == pos.z)
+            return@firstOrNull (Position.readFrom(tag) == pos)
         }?.also { foundTag ->
             (foundTag as NBTTagCompound).setModifiers(modifiers)
         }

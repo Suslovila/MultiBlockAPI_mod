@@ -7,4 +7,8 @@ interface ITileMultiStructureElement {
     fun getMasterPos(): Position
     fun getFacing(): ForgeDirection
     fun getRotationAngle(): Int
+
+    fun setMasterPos(position: Position): Unit
+    fun setFacing(facing : ForgeDirection): Unit
+    fun setRotationAngle(angle : Int): Unit
 }

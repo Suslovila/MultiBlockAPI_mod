@@ -4,9 +4,11 @@ import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import com.suslovila.sus_multi_blocked.api.SusTypeToken
 import com.suslovila.sus_multi_blocked.api.fromJsons
+import com.suslovila.sus_multi_blocked.api.multiblock.block.ITileMultiStructureElement
+import com.suslovila.sus_multi_blocked.api.multiblock.block.TileDefaultMultiStructureElement
 import com.suslovila.sus_multi_blocked.utils.*
 import net.minecraft.block.Block
-import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.world.World
 import net.minecraftforge.common.util.ForgeDirection
@@ -21,7 +23,8 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     val sourcePath: String,
     val dataClass: Class<E>,
     val availableFacings: List<ForgeDirection> = arrayListOf(ForgeDirection.UP),
-    val rotatable: Boolean = false
+    val rotatable: Boolean = false,
+    val validationType: VALIDATION_TYPE = VALIDATION_TYPE.MASTER
 ) {
 
     val rotationAngles: ArrayList<Int>
@@ -40,21 +43,98 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     }
 
 
-    fun tryConstruct(world: World, clickedPosition: Position, player: EntityPlayerMP?): Boolean {
+    fun tryConstruct(world: World, clickedPosition: Position, player: EntityPlayer?): Boolean {
         val block = world.getBlock(clickedPosition) ?: return false
-
-        //to provide generating by clicking any block, we filter only available by block type
-        val suitableElements = elements.filter {
-            Block.getBlockFromName(it.storedBlock) == block &&
-                    world.getBlockMetadata(clickedPosition) == it.meta
-        }
-        for (element in suitableElements) {
+        if (validationType == VALIDATION_TYPE.EACH_BLOCK) {
+            //to provide generating by clicking any block, we filter only available by block type
+            val suitableElements = elements.filter {
+                Block.getBlockFromName(it.storedBlock) == block &&
+                        world.getBlockMetadata(clickedPosition) == it.meta
+            }
+            for (element in suitableElements) {
+                for (face in availableFacings) {
+                    for (angle in rotationAngles) {
+                        val successConstructing =
+                            canConstruct(
+                                world,
+                                masterPosition = clickedPosition - element.getRealOffset(face, angle),
+                                face,
+                                angle
+                            )
+                        if (successConstructing) {
+                            finaliseConstruction(
+                                world,
+                                clickedPosition - element.getRealOffset(face, angle),
+                                face,
+                                angle,
+                                player
+                            )
+                            return true
+                        }
+                    }
+                }
+            }
+        } else {
             for (face in availableFacings) {
                 for (angle in rotationAngles) {
                     val successConstructing =
-                        canConstruct(world, masterPosition = clickedPosition - element.getRealOffset(face, angle), face, angle)
+                        canConstruct(
+                            world,
+                            masterPosition = clickedPosition,
+                            face,
+                            angle
+                        )
                     if (successConstructing) {
-                        finaliseConstruction(world, clickedPosition - element.getRealOffset(face,angle), face, angle, player)
+                        finaliseConstruction(
+                            world,
+                            clickedPosition,
+                            face,
+                            angle,
+                            player
+                        )
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+    fun canConstruct(world: World, clickedPosition: Position, player: EntityPlayer?): Boolean {
+        val block = world.getBlock(clickedPosition) ?: return false
+        if (validationType == VALIDATION_TYPE.EACH_BLOCK) {
+            //to provide generating by clicking any block, we filter only available by block type
+            val suitableElements = elements.filter {
+                Block.getBlockFromName(it.storedBlock) == block &&
+                        world.getBlockMetadata(clickedPosition) == it.meta
+            }
+            for (element in suitableElements) {
+                for (face in availableFacings) {
+                    for (angle in rotationAngles) {
+                        val successConstructing =
+                            canConstruct(
+                                world,
+                                masterPosition = clickedPosition - element.getRealOffset(face, angle),
+                                face,
+                                angle
+                            )
+                        if (successConstructing) {
+                            return true
+                        }
+                    }
+                }
+            }
+        } else {
+            for (face in availableFacings) {
+                for (angle in rotationAngles) {
+                    val successConstructing =
+                        canConstruct(
+                            world,
+                            masterPosition = clickedPosition,
+                            face,
+                            angle
+                        )
+                    if (successConstructing) {
                         return true
                     }
                 }
@@ -64,21 +144,26 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     }
 
 
-    private fun canConstruct(world: World, masterPosition: Position, facing: ForgeDirection, rotationAngle: Int): Boolean =
+    private fun canConstruct(
+        world: World,
+        masterPosition: Position,
+        facing: ForgeDirection,
+        rotationAngle: Int
+    ): Boolean =
         elements.all { it.canConstruct(world, masterWorldPosition = masterPosition, facing, rotationAngle) }
 
-    private fun finaliseConstruction(
+    open fun finaliseConstruction(
         world: World,
         masterPosition: Position,
         facing: ForgeDirection,
         rotationAngle: Int,
-        player: EntityPlayerMP?
+        player: EntityPlayer?
     ) {
         elements.forEach { it.construct(world, masterPosition, facing, rotationAngle, player) }
-        onCreated(world, masterPosition, player)
+        onCreated(world, masterPosition, facing, rotationAngle, player)
     }
 
-    fun isStillValid(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int) : Boolean =
+    fun isStillValid(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int): Boolean =
         elements.all { it.isStillValid(world, masterPosition, facing, angle) }
 
 
@@ -87,7 +172,18 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     }
 
     abstract fun <T : TileEntity> render(tile: T, playersOffset: SusVec3, partialTicks: Float)
-    abstract fun onCreated(world: World, masterWorldPosition: Position, player: EntityPlayerMP?)
+    open fun onCreated(
+        world: World,
+        masterWorldPosition: Position,
+        facing: ForgeDirection,
+        angle: Int,
+        player: EntityPlayer?
+    ) {
+        elements.map { it.getRealPos(masterWorldPosition, facing, angle) }.forEach {
+            world.markBlockForUpdate(it.x, it.y, it.z)
+
+        }
+    }
 }
 
 
@@ -103,8 +199,9 @@ abstract class MultiStructureElement<D : AdditionalData>(
     val offset: Position
         get() = Position(x, y, z)
 
-    fun getRealOffset(facing: ForgeDirection, angle : Int): Position {
-        val rotated = RotationHelper.rotateOffsetFromOrientation(this.offset, facing)  ?: throw Exception("Error rotating offset: ${this.offset}")
+    fun getRealOffset(facing: ForgeDirection, angle: Int): Position {
+        val rotated = RotationHelper.rotateOffsetFromOrientation(this.offset, facing)
+            ?: throw Exception("Error rotating offset: ${this.offset}")
         val rotatedAndSpinned = RotationHelper.spinOffsetFromOrientationByAngle(rotated, facing, angle)
             ?: throw Exception("Error spinning offset: ${this.offset} by angle: $angle with facing: $facing")
         return rotatedAndSpinned
@@ -137,10 +234,14 @@ abstract class MultiStructureElement<D : AdditionalData>(
         masterWorldPosition: Position,
         facing: ForgeDirection,
         angle: Int,
-        player: EntityPlayerMP?,
+        player: EntityPlayer?,
     ) {
         val realPos = masterWorldPosition + getRealOffset(facing, angle)
         world.setBlock(realPos, additionalData.fillingBlock)
+        val tile = (world.getTile(realPos) as? ITileMultiStructureElement) ?: return
+        tile.setMasterPos(masterWorldPosition)
+        tile.setFacing(facing)
+        tile.setRotationAngle(angle)
     }
 
     open fun isStillValid(
@@ -179,4 +280,9 @@ abstract class MultiStructureElement<D : AdditionalData>(
 
 abstract class AdditionalData {
     abstract val fillingBlock: Block
+}
+
+enum class VALIDATION_TYPE {
+    MASTER,
+    EACH_BLOCK
 }
