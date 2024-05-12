@@ -14,6 +14,7 @@ import net.minecraft.world.World
 import net.minecraftforge.common.util.ForgeDirection
 import java.io.FileReader
 import java.io.IOException
+import java.io.InputStreamReader
 
 //by default all structures in files MUST BE IN "UP" POSITION!!!!
 //when clicking on block, it tries to predict it's master's position and fires a check from possible positions
@@ -33,7 +34,7 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
         }
 
 
-    val reader = JsonReader(FileReader(sourcePath))
+    val reader = JsonReader(InputStreamReader(dataClass.getResourceAsStream(sourcePath)!!))
 
     val elements: List<E> = run {
         val newType = SusTypeToken.getParameterized(List::class.java, dataClass)
@@ -43,7 +44,7 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     }
 
 
-    fun tryConstruct(world: World, clickedPosition: Position, player: EntityPlayer?): Boolean {
+    open fun tryConstruct(world: World, clickedPosition: Position, player: EntityPlayer?): Boolean {
         val block = world.getBlock(clickedPosition) ?: return false
         if (validationType == VALIDATION_TYPE.EACH_BLOCK) {
             //to provide generating by clicking any block, we filter only available by block type
@@ -100,7 +101,7 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
         return false
     }
 
-    fun canConstruct(world: World, clickedPosition: Position, player: EntityPlayer?): Boolean {
+    open fun canConstruct(world: World, clickedPosition: Position, player: EntityPlayer?): Boolean {
         val block = world.getBlock(clickedPosition) ?: return false
         if (validationType == VALIDATION_TYPE.EACH_BLOCK) {
             //to provide generating by clicking any block, we filter only available by block type
@@ -163,11 +164,11 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
         onCreated(world, masterPosition, facing, rotationAngle, player)
     }
 
-    fun isStillValid(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int): Boolean =
+    open fun isStillValid(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int): Boolean =
         elements.all { it.isStillValid(world, masterPosition, facing, angle) }
 
 
-    fun deconstruct(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int) {
+    open fun deconstruct(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int) {
         elements.forEach { it.deconstruct(world, masterPosition, facing, angle) }
     }
 

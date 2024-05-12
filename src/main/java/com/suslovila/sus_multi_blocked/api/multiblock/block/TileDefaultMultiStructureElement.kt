@@ -30,25 +30,25 @@ abstract class TileDefaultMultiStructureElement(
 
     }
 
-    override fun writeToNBT(nbttagcompound: NBTTagCompound) {
+    final override fun writeToNBT(nbttagcompound: NBTTagCompound) {
         super.writeToNBT(nbttagcompound)
         writeCustomNBT(nbttagcompound)
     }
 
-    fun writeCustomNBT(nbttagcompound: NBTTagCompound) {
+    open fun writeCustomNBT(nbttagcompound: NBTTagCompound) {
         structureMasterPos.writeTo(nbttagcompound)
         nbttagcompound.setInteger(MULTI_STRUCTURE_FACING_NBT, structureFacing.ordinal)
         nbttagcompound.setInteger(MULTI_STRUCTURE_SPIN_NBT, structureRotationAngle)
 
     }
 
-    override fun readFromNBT(nbttagcompound: NBTTagCompound) {
+    final override fun readFromNBT(nbttagcompound: NBTTagCompound) {
         super.readFromNBT(nbttagcompound)
         readCustomNBT(nbttagcompound)
     }
 
-    fun readCustomNBT(nbttagcompound: NBTTagCompound) {
-        structureMasterPos = Position.readFrom(nbttagcompound);
+    open fun readCustomNBT(nbttagcompound: NBTTagCompound) {
+        structureMasterPos = Position.readFrom(nbttagcompound)
         structureFacing = ForgeDirection.getOrientation(nbttagcompound.getInteger(MULTI_STRUCTURE_FACING_NBT))
         structureRotationAngle = nbttagcompound.getInteger(MULTI_STRUCTURE_SPIN_NBT)
     }

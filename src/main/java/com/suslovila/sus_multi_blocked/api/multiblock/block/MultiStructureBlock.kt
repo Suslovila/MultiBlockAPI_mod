@@ -14,7 +14,7 @@ abstract class MultiStructureBlock<D : AdditionalData, E : MultiStructureElement
     BlockContainer(material) {
     abstract val multiStructure: MultiStructure<D, E>
     override fun onNeighborBlockChange(world: World?, x: Int, y: Int, z: Int, neighborBlock: Block?) {
-        if (world == null || world.isRemote) return
+        if (world == null) return
         val innerTile = world.getTileEntity(x, y, z)
         if (innerTile is ITileMultiStructureElement) {
             val isValid = multiStructure.isStillValid(

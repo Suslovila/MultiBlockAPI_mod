@@ -33,9 +33,9 @@ class FMLEventListener {
     fun construct(event: PlayerInteractEvent) {
         with(event) {
             if (action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK && !world.isRemote) {
-                val block = world.getBlock(x, y, z)
-                val success = MultiBlockTower.tryConstruct(world, Position(x, y, z), entityPlayer as? EntityPlayerMP)
-                if (success) entityPlayer.sendChatMessage("successfully created tower")
+//                val block = world.getBlock(x, y, z)
+//                val success = MultiBlockTower.tryConstruct(world, Position(x, y, z), entityPlayer as? EntityPlayerMP)
+//                if (success) entityPlayer.sendChatMessage("successfully created tower")
             }
         }
     }

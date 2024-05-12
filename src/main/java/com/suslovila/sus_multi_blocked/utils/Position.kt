@@ -90,16 +90,19 @@ data class Position(val x: Int, val y: Int, val z: Int) {
     }
 }
 
-fun World.getTile(position: Position): TileEntity? {
+fun World.getTile(position: Position?): TileEntity? {
+    if(position == null) return null
     return this.getTileEntity(position.x, position.y, position.z)
 }
 
-fun World.getBlock(position: Position): Block? {
+fun World.getBlock(position: Position?): Block? {
+    if(position == null) return null
     return this.getBlock(position.x, position.y, position.z)
 }
 
-fun World.getBlockMetadata(pos: Position): Int {
-    return this.getBlockMetadata(pos.x, pos.y, pos.z)
+fun World.getBlockMetadata(position: Position?): Int {
+    if(position == null) return 0
+    return this.getBlockMetadata(position.x, position.y, position.z)
 }
 
 fun World.setBlock(pos: Position, block: Block) {

@@ -60,5 +60,4 @@ public class SusMultiBlocked {
 		proxy.postInit(event);
 
 	}
-
 }

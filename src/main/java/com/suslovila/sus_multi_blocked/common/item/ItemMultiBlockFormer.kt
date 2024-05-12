@@ -38,7 +38,7 @@ import kotlin.io.path.Path
 class ItemMultiBlockFormer : Item() {
     init {
         unlocalizedName = (SusMultiBlocked.prefixAppender.doAndGet(":zone_selector"))
-        setTextureName(SusMultiBlocked.prefixAppender.doAndGet(":zone_selector"))
+        setTextureName(SusMultiBlocked.MOD_ID + ":zone_selector")
         setMaxStackSize(1)
         creativeTab = SusMultiBlocked.tab
     }

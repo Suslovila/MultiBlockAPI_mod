@@ -1,14 +1,14 @@
 [
 {
   "modid": "sus_multi_blocked",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "name": "SusMultiBlocked",
+  "description": "A dev-tool for creating multiStructures",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
-  "authorList": ["ExampleDude"],
-  "credits": "The Forge and FML guys, for making this example",
+  "authorList": ["Suslovila"],
+  "credits": "Thanks MCModding guys for advices and help!",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []
