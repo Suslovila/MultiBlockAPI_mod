@@ -1,6 +1,6 @@
 package com.suslovila.sus_multi_blocked.api;
 
-import com.suslovila.sus_multi_blocked.client.gui.GUIPlayerDetector;
+import com.suslovila.sus_multi_blocked.client.gui.GuiMultiBlockFormer;
 import com.suslovila.sus_multi_blocked.common.item.ItemMultiBlockFormer;
 import com.suslovila.sus_multi_blocked.utils.Position;
 import cpw.mods.fml.common.network.IGuiHandler;
@@ -37,7 +37,7 @@ public class GuiHandler implements IGuiHandler {
                 if (!(player.getHeldItem().getItem() instanceof ItemMultiBlockFormer)) {
                     return null;
                 }
-                return new GUIPlayerDetector(player.inventory, player.getHeldItem(), new Position(x, y, z));
+                return new GuiMultiBlockFormer(player.inventory, player.getHeldItem(), new Position(x, y, z));
 
             }
         }

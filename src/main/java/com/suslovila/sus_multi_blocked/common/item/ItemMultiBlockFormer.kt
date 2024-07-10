@@ -73,9 +73,6 @@ class ItemMultiBlockFormer : Item() {
         p_77648_10_: Float
     ): Boolean {
         if (stack == null || player == null || world == null) return false
-        println("MODE: " + stack.getMode())
-        println("First bound: " + stack.getFirstBound())
-        println("Second bound: " + stack.getSecondBound())
 
         when (stack.getMode()) {
             MultiBlockWrapper.MODE.BLOCK_CUSTOMIZER -> {
@@ -148,7 +145,7 @@ fun writeToJsonFromZoneSelector(itemStack: ItemStack, world: World): Boolean {
     JsonWriter(FileWriter(jsonPath)).use { writer ->
         writer.beginArray()
         space.forEachBlockPos { blockPos ->
-            if (world.getBlock(blockPos)?.isAbsoluteAir() ?: true) return@forEachBlockPos
+            if (world.getBlock(blockPos)?.isAbsoluteAir() != false) return@forEachBlockPos
             val offset = blockPos - masterPos
             writer.beginObject()
             writer.name("x").value(offset.x)

@@ -7,12 +7,6 @@ import cpw.mods.fml.relauncher.Side;
 
 public class PacketHandler {
     public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(SusMultiBlocked.NAME.toLowerCase());
-    private int tilePacketId = 0;
-
-    public int getNextTilePacketId() {
-        return ++tilePacketId;
-    }
-
     public static void init() {
         int idx = 0;
 

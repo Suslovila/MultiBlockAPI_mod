@@ -36,9 +36,9 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
 
     val reader = JsonReader(InputStreamReader(dataClass.getResourceAsStream(sourcePath)!!))
 
-    val elements: List<E> = run {
+    val elements: ArrayList<E> = run {
         val newType = SusTypeToken.getParameterized(List::class.java, dataClass)
-        (Gson().fromJsons(reader, newType) as? List<E>)
+        (Gson().fromJsons(reader, newType) as? ArrayList<E>)
             ?.onEach { it.putAdditionalData() }
             ?: throw IOException("error reading structure: $sourcePath")
     }
@@ -217,14 +217,6 @@ abstract class MultiStructureElement<D : AdditionalData>(
         val realPos = getRealPos(masterWorldPosition, facing, rotationAngle)
         val checkBlock = world.getBlock(realPos)
         if (checkBlock != null) {
-            println(
-                "the element is ${this.storedBlock}, the master is at: $masterWorldPosition, the real offset is: ${
-                    getRealOffset(
-                        facing,
-                        rotationAngle
-                    )
-                }, the real pos: $realPos, the block there: ${checkBlock.unlocalizedName}"
-            )
             return (checkBlock == Block.getBlockFromName(storedBlock) && world.getBlockMetadata(realPos) == meta)
         }
         return false

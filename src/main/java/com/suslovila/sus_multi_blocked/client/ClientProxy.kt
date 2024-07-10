@@ -24,8 +24,7 @@ class ClientProxy : CommonProxy(), IGuiHandler {
         super.init(event)
         ModBlocks.registerRender()
         setupItemRenderers()
-        val keyHandler = KeyHandler
-        keyHandler.register()
+        KeyHandler.register()
 
         //ClientRegistry.bindTileEntitySpecialRenderer(TileClass::class.java, TileRendererInstance)
 

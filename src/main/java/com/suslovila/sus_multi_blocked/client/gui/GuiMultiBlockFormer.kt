@@ -24,12 +24,11 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
-class GUIPlayerDetector(invPlayer: InventoryPlayer, multiBlockFormer: ItemStack, pos: Position) : GuiScreen() {
+class GuiMultiBlockFormer(invPlayer: InventoryPlayer, multiBlockFormer: ItemStack, pos: Position) : GuiScreen() {
 
     companion object {
         const val enterButtonKeyboardId = 28
         private val texture = ResourceLocation(SusMultiBlocked.MOD_ID, "textures/gui/PlayerDetector2.png")
-        private var buttonId = 0
         private val modifiersMaxAmount = 10
     }
 

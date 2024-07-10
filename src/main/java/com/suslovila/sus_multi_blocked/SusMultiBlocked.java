@@ -3,6 +3,7 @@ package com.suslovila.sus_multi_blocked;
 import com.suslovila.sus_multi_blocked.api.GuiHandler;
 import com.suslovila.sus_multi_blocked.client.ClientProxy;
 import com.suslovila.sus_multi_blocked.common.CommonProxy;
+import com.suslovila.sus_multi_blocked.common.item.ModItems;
 import com.suslovila.sus_multi_blocked.utils.NbtKeyNameHelper;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -17,15 +18,15 @@ import net.minecraft.item.Item;
 
 @Mod(name = SusMultiBlocked.NAME, modid = SusMultiBlocked.MOD_ID, version = SusMultiBlocked.VERSION)
 public class SusMultiBlocked {
-	public static final String NAME = "nameThatWillBeShown";
+	public static final String NAME = "Sus Multi Blocked";
 	public static final String MOD_ID = "sus_multi_blocked";
 	public static final NbtKeyNameHelper prefixAppender = new NbtKeyNameHelper(MOD_ID);
 	public static final String VERSION = "1.0";
 
-	public static final CreativeTabs tab = new CreativeTabs(NAME) {
+	public static final CreativeTabs tab = new CreativeTabs(MOD_ID) {
         @Override
         public Item getTabIconItem() {
-            return Item.getItemFromBlock(Blocks.water);
+            return ModItems.multiBlockFormer;
         }
     };
 
