@@ -22,12 +22,10 @@ import com.suslovila.sus_multi_blocked.utils.WorldHelper.forEachBlockPos
 import com.suslovila.sus_multi_blocked.utils.getBlock
 import com.suslovila.sus_multi_blocked.utils.getBlockMetadata
 import cpw.mods.fml.common.registry.GameRegistry
-import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.Blocks
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.JsonToNBT
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.EnumChatFormatting
 import net.minecraft.world.World
@@ -46,7 +44,7 @@ class ItemMultiBlockFormer : Item() {
 
     override fun onItemRightClick(itemStackIn: ItemStack?, worldIn: World?, player: EntityPlayer?): ItemStack? {
         if (itemStackIn == null || worldIn == null || player == null) return itemStackIn
-        if (itemStackIn.getMode() == MultiBlockWrapper.MODE.ZONE_SELECTOR) {
+        if (getMode(itemStackIn) == MultiBlockWrapper.MODE.ZONE_SELECTOR) {
             player.openGui(
                 SusMultiBlocked.MOD_ID,
                 GuiHandler.GUI_MULTIBLOCK_FORMER,
@@ -55,7 +53,7 @@ class ItemMultiBlockFormer : Item() {
                 player.posY.toInt(),
                 player.posZ.toInt()
             )
-            return itemStackIn;
+            return itemStackIn
         }
         return super.onItemRightClick(itemStackIn, worldIn, player)
     }
@@ -74,14 +72,14 @@ class ItemMultiBlockFormer : Item() {
     ): Boolean {
         if (stack == null || player == null || world == null) return false
 
-        when (stack.getMode()) {
+        when (getMode(stack)) {
             MultiBlockWrapper.MODE.BLOCK_CUSTOMIZER -> {
                 if (!player.isSneaking) {
                     player.openGui(SusMultiBlocked.MOD_ID, GuiHandler.GUI_MULTIBLOCK_FORMER, world, x, y, z)
                 } else {
                     if (!world.isRemote) {
                         val masterPos = Position(x, y, z)
-                        stack.setMasterPos(masterPos)
+                        setMasterPos(stack, masterPos)
                         player.sendChatMessage("Master position was successfully set to $masterPos")
                     }
                 }
@@ -90,7 +88,7 @@ class ItemMultiBlockFormer : Item() {
 
             MultiBlockWrapper.MODE.ZONE_SELECTOR -> {
                 if (!player.isSneaking) {
-                    stack.setSecondBound(x, y, z)
+                    setSecondBound(stack, x, y, z)
                 } else {
                     player.openGui(SusMultiBlocked.MOD_ID, GuiHandler.GUI_MULTIBLOCK_FORMER, world, x, y, z)
                 }
@@ -108,40 +106,21 @@ class ItemMultiBlockFormer : Item() {
         p_77624_4_: Boolean
     ) {
 
-        list.add(EnumChatFormatting.AQUA.toString() + "Current Mode: " + stack.getMode())
-        list.add(EnumChatFormatting.GOLD.toString() + "First bound: " + stack.getFirstBound())
-        list.add(EnumChatFormatting.GOLD.toString() + "Second bound: " + stack.getSecondBound())
+        list.add(EnumChatFormatting.AQUA.toString() + "Current Mode: " + getMode(stack))
+        list.add(EnumChatFormatting.GOLD.toString() + "First bound: " + getFirstBound(stack))
+        list.add(EnumChatFormatting.GOLD.toString() + "Second bound: " + getSecondBound(stack))
 
-    }
-
-    override fun onUpdate(stack: ItemStack?, worldIn: World?, entityIn: Entity?, p_77663_4_: Int, p_77663_5_: Boolean) {
-        super.onUpdate(stack, worldIn, entityIn, p_77663_4_, p_77663_5_)
-        if (worldIn == null || entityIn == null || stack == null) return
-        if (!worldIn.isRemote) {
-            val f = 4;
-        }
     }
 }
 
 
 fun writeToJsonFromZoneSelector(itemStack: ItemStack, world: World): Boolean {
-//    if (itemStack.getFirstBound() == null || itemStack.getSecondBound() == null) return false
-    val space = boundingBoxFromTwoPos(itemStack.getFirstBound()!!, itemStack.getSecondBound()!!)
-    val blocksInfo = itemStack.getBlockInfo()
-    val globalModifiers = itemStack.getOrCreateTag().getModifiers()
-    val masterPos = itemStack.getMasterPos()!!
-    val masterPosAsClassicVec3 = net.minecraft.util.Vec3.createVectorHelper(
-        masterPos.x.toDouble(),
-        masterPos.y.toDouble(),
-        masterPos.z.toDouble()
-    )
+    val space = boundingBoxFromTwoPos(getFirstBound(itemStack)!!, getSecondBound(itemStack)!!)
+    val blocksInfo = getBlockInfo(itemStack)
+    val globalModifiers = getModifiers(itemStack.getOrCreateTag())
+    val masterPos = getMasterPos(itemStack)!!
 
     val jsonPath = Files.createDirectories(Path(Config.structureOutputPath)).toString() + "\\" + itemStack.getFileName()
-//    val jsonPath = Config.structureOutputPath + itemStack.getFileName()
-//    val directory = File(jsonPath)
-//    if (!directory.exists()) {
-//        directory.mkdirs()
-//    }
     JsonWriter(FileWriter(jsonPath)).use { writer ->
         writer.beginArray()
         space.forEachBlockPos { blockPos ->

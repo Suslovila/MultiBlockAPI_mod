@@ -31,8 +31,8 @@ class ClientEventHandler {
     fun onRenderWorldLast(event: RenderWorldLastEvent) {
         val stack = Minecraft.getMinecraft()?.thePlayer?.heldItem ?: return
         if (stack.item is ItemMultiBlockFormer) {
-            val firstBound = stack.getFirstBound()
-            val secondBound = stack.getSecondBound()
+            val firstBound = getFirstBound(stack)
+            val secondBound = getSecondBound(stack)
             SusGraphicHelper.bindTexture(SusMultiBlocked.MOD_ID, "textures/models/shape.png")
             glEnable(GL_BLEND)
             glEnable(GL_ALPHA_TEST)

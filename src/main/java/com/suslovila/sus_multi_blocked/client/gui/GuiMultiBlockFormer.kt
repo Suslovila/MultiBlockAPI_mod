@@ -42,10 +42,9 @@ class GuiMultiBlockFormer(invPlayer: InventoryPlayer, multiBlockFormer: ItemStac
 
     private val isZoneSelector: Boolean
         get() {
-            return multiBlockFormer.getMode() == MultiBlockWrapper.MODE.ZONE_SELECTOR
+            return getMode(multiBlockFormer) == MultiBlockWrapper.MODE.ZONE_SELECTOR
         }
 
-    private var currentModifier: Modifier? = null
     private var currentField: GuiTextField? = null
 
     private val modifierTypes: Array<SerialiseType> = Array(modifiersMaxAmount) { SerialiseType.INTEGER }
@@ -68,8 +67,8 @@ class GuiMultiBlockFormer(invPlayer: InventoryPlayer, multiBlockFormer: ItemStac
 
     override fun initGui() {
         super.initGui()
-        val globalModifiers = multiBlockFormer.getOrCreateTag().getModifiers()
-        val singleBlockModifiers = multiBlockFormer.getBlockInfo()[pos] ?: ArrayList()
+        val globalModifiers = getModifiers(multiBlockFormer.getOrCreateTag())
+        val singleBlockModifiers = getBlockInfo(multiBlockFormer)[pos] ?: ArrayList()
         xTextureSize = 256
         yTextureSize = 198
         guiLeft = (width - this.xTextureSize) / 2
@@ -200,7 +199,7 @@ class GuiMultiBlockFormer(invPlayer: InventoryPlayer, multiBlockFormer: ItemStac
     }
 
     private fun drawGuiText(rawX: Int, rawY: Int) {
-        fontRendererObj.drawString(multiBlockFormer.getMode().toString(), guiLeft + 80, guiTop - 10, 0xFFFFFF)
+        fontRendererObj.drawString(getMode(multiBlockFormer).toString(), guiLeft + 80, guiTop - 10, 0xFFFFFF)
         modifierNameTextFields.forEach { it.drawTextBox() }
         valueTextFields.forEach { it.drawTextBox() }
         if (isZoneSelector) fileNameField.drawTextBox()
@@ -337,7 +336,7 @@ class GuiMultiBlockFormer(invPlayer: InventoryPlayer, multiBlockFormer: ItemStac
     fun getAmountOfNames(): HashMap<String, Int> {
         val names = hashMapOf<String, Int>()
         for (nameField in modifierNameTextFields) names[nameField.text] = (names[nameField.text] ?: 0) + 1
-        return names;
+        return names
     }
 }
 

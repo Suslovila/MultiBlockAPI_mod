@@ -63,10 +63,11 @@ class TowerElement(
         masterWorldPosition: Position,
         facing: ForgeDirection,
         angle: Int,
+        index : Int,
         player: EntityPlayer?
 
     ) {
-        super.construct(world, masterWorldPosition, facing, angle, player)
+        super.construct(world, masterWorldPosition, facing, angle,index, player)
         val tile = MultiBlockTower.tiles[tile]?.invoke() ?: return
         world.setTile(getRealPos(masterWorldPosition, facing, angle), tile)
     }

@@ -5,14 +5,12 @@ import com.google.gson.stream.JsonReader
 import com.suslovila.sus_multi_blocked.api.SusTypeToken
 import com.suslovila.sus_multi_blocked.api.fromJsons
 import com.suslovila.sus_multi_blocked.api.multiblock.block.ITileMultiStructureElement
-import com.suslovila.sus_multi_blocked.api.multiblock.block.TileDefaultMultiStructureElement
 import com.suslovila.sus_multi_blocked.utils.*
 import net.minecraft.block.Block
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.world.World
 import net.minecraftforge.common.util.ForgeDirection
-import java.io.FileReader
 import java.io.IOException
 import java.io.InputStreamReader
 
@@ -160,7 +158,7 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
         rotationAngle: Int,
         player: EntityPlayer?
     ) {
-        elements.forEach { it.construct(world, masterPosition, facing, rotationAngle, player) }
+        elements.forEachIndexed {index, element -> element.construct(world, masterPosition, facing, rotationAngle, index, player) }
         onCreated(world, masterPosition, facing, rotationAngle, player)
     }
 
@@ -227,6 +225,7 @@ abstract class MultiStructureElement<D : AdditionalData>(
         masterWorldPosition: Position,
         facing: ForgeDirection,
         angle: Int,
+        index: Int,
         player: EntityPlayer?,
     ) {
         val realPos = masterWorldPosition + getRealOffset(facing, angle)
@@ -235,6 +234,8 @@ abstract class MultiStructureElement<D : AdditionalData>(
         tile.setMasterPos(masterWorldPosition)
         tile.setFacing(facing)
         tile.setRotationAngle(angle)
+        // required for drops
+        tile.setElementIndex(index)
     }
 
     open fun isStillValid(

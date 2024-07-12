@@ -25,39 +25,33 @@ object MultiBlockWrapper {
     val MODIFIERS_NAME = SusMultiBlocked.prefixAppender.doAndGet("global_modifiers")
     val BLOCK_MODIFIERS_NAME = SusMultiBlocked.prefixAppender.doAndGet("single_modifiers")
 
-    val modifiersMaxAmount = 10
 
     enum class MODE {
         BLOCK_CUSTOMIZER,
         ZONE_SELECTOR,
     }
 
-    fun ItemStack.setDefaultSettingsForBlock(x: Int, y: Int, z: Int) {
-
+    fun setFirstBound(stack: ItemStack, x: Int, y: Int, z: Int) {
+        stack.getOrCreateTag().setIntArray(FIRST_BOUND_NAME, intArrayOf(x, y, z))
     }
 
-
-    fun ItemStack.setFirstBound(x: Int, y: Int, z: Int) {
-        this.getOrCreateTag().setIntArray(FIRST_BOUND_NAME, intArrayOf(x, y, z))
+    fun setSecondBound(stack: ItemStack, x: Int, y: Int, z: Int) {
+        stack.getOrCreateTag().setIntArray(SECOND_BOUND_NAME, intArrayOf(x, y, z))
     }
 
-    fun ItemStack.setSecondBound(x: Int, y: Int, z: Int) {
-        this.getOrCreateTag().setIntArray(SECOND_BOUND_NAME, intArrayOf(x, y, z))
-    }
-
-    fun ItemStack.getFirstBound(): Position? {
-        val bound = this.getOrCreateTag().getIntArray(FIRST_BOUND_NAME)
+    fun getFirstBound(stack: ItemStack): Position? {
+        val bound = stack.getOrCreateTag().getIntArray(FIRST_BOUND_NAME)
         return if (bound.size == 3) SusVec3.vec3FromCollection(bound.asList()) else null
     }
 
-    fun ItemStack.getSecondBound(): Position? {
-        val bound = this.getOrCreateTag().getIntArray(SECOND_BOUND_NAME)
+    fun getSecondBound(stack: ItemStack): Position? {
+        val bound = stack.getOrCreateTag().getIntArray(SECOND_BOUND_NAME)
         return if (bound.size == 3) SusVec3.vec3FromCollection(bound.asList()) else null
 
     }
 
-    fun ItemStack.getMode(): MODE {
-        val tag = this.getOrCreateTag()
+    fun getMode(itemStack: ItemStack): MODE {
+        val tag = itemStack.getOrCreateTag()
         if (!tag.hasKey(MODE_NAME)) {
             tag.setInteger(MODE_NAME, 0)
         }
@@ -66,15 +60,9 @@ object MultiBlockWrapper {
         return mode
     }
 
-    fun NBTTagCompound.addModifier(modifier: Modifier) {
-        getTagListWithModifiers().let { tagList ->
-            val newModifierTag = NBTTagCompound()
-            modifier.writeTo(newModifierTag)
-        }
-    }
 
-    fun NBTTagCompound.setModifiers(modifiers: ArrayList<Modifier>) {
-        getTagListWithModifiers().let { tagList ->
+    fun setModifiers(nbt: NBTTagCompound, modifiers: ArrayList<Modifier>) {
+        getTagListWithModifiers(nbt).let { tagList ->
             tagList.tagList.clear()
             for (modifier in modifiers) {
                 val tagForSingleModifier = NBTTagCompound()
@@ -84,50 +72,10 @@ object MultiBlockWrapper {
         }
     }
 
-    fun NBTTagCompound.getModifier(requiredName: String): Modifier? {
-        val tagWithModifiers = getTagListWithModifiers() ?: return null
-        for (i in 0..tagWithModifiers.tagCount()) {
-            val tagWithSingleModifier = tagWithModifiers.getCompoundTagAt(i)
-            val modifier = Modifier.readFrom(tagWithSingleModifier)
-            if (modifier.name == requiredName) {
-                return modifier
-            }
-        }
-        return null
-    }
 
-    fun ItemStack.deleteGlobalModifier(requiredName: String) {
-        getOrCreateTag().getTagListWithModifiers()?.let {
-            for (i in 0..it.tagCount()) {
-                val tagWithSingleModifier = it.getCompoundTagAt(i)
-                val modifier = Modifier.readFrom(tagWithSingleModifier)
-                if (modifier.name == requiredName) {
-                    it.removeTag(i)
-                }
-            }
-        }
-//        getTagListWithBlocksInfo()?.let { blockInfo ->
-//            for (blockInfoIndex in 0..blockInfo.tagCount()) {
-//                val tagWithSingleBlock = blockInfo.getCompoundTagAt(blockInfoIndex)
-//                getTagListWithModifiers(tagWithSingleBlock)?.let { singleBlockModifiers ->
-//                    var modifierIndex = 0
-//                    while (modifierIndex < singleBlockModifiers.tagCount()) {
-//                        val tagWithModifier = singleBlockModifiers.getCompoundTagAt(modifierIndex)
-//                        val modifier = Modifier.readFrom(tagWithModifier)
-//                        if (modifier.name == requiredName) {
-//                            singleBlockModifiers.removeTag(modifierIndex)
-//                        } else {
-//                            modifierIndex++
-//                        }
-//                    }
-//                }
-//            }
-//        }
-    }
-
-    fun NBTTagCompound.getModifiers(): ArrayList<Modifier> {
+    fun getModifiers(nbt: NBTTagCompound): ArrayList<Modifier> {
         val modifiers = arrayListOf<Modifier>()
-        val tagWithModifiers = getTagListWithModifiers() ?: return ArrayList()
+        val tagWithModifiers = getTagListWithModifiers(nbt)
         for (i in 0 until tagWithModifiers.tagCount()) {
             val tagWithSingleModifier = tagWithModifiers.getCompoundTagAt(i)
             modifiers.add(Modifier.readFrom(tagWithSingleModifier))
@@ -135,26 +83,6 @@ object MultiBlockWrapper {
         return modifiers
     }
 
-    fun NBTTagCompound.hasModifierNamed(name: String): Boolean {
-        val tagWithModifiers = getTagListWithModifiers() ?: return false
-        for (i in 0..tagWithModifiers.tagCount()) {
-            val tagWithSingleModifier = tagWithModifiers.getCompoundTagAt(i)
-            val modifier = Modifier.readFrom(tagWithSingleModifier)
-            if (modifier.name == name) return true
-        }
-        return false
-    }
-
-    fun NBTTagCompound.initModifiers() {
-        if (getTagListWithModifiers() != null) return
-        val emptyList = NBTTagList()
-//        this.setBoolean()
-//        this.setTag("343", null)
-//        emptyList.tagList = arrayOfNulls<NBTBase>(modifiersMaxAmount).toList()
-//        this.setTag(MODIFIERS_NAME, emptyList) // for global modif
-//        this.setTag(BLOCK_MODIFIERS_NAME, NBTTagList()) // for all blockPoses
-
-    }
 
     fun ItemStack.getFileName(): String {
         if (!this.getOrCreateTag().hasKey(FILE_NAME)) {
@@ -167,14 +95,14 @@ object MultiBlockWrapper {
         this.getOrCreateTag().setString(FILE_NAME, name)
     }
 
-    fun ItemStack.getBlockInfo(): MutableMap<Position, ArrayList<Modifier>> {
-        getTagListWithBlocksInfo().let { tagWithBlockInfo ->
+    fun getBlockInfo(stack: ItemStack): MutableMap<Position, ArrayList<Modifier>> {
+        getTagListWithBlocksInfo(stack).let { tagWithBlockInfo ->
             val info = mutableMapOf<Position, ArrayList<Modifier>>()
 
             for (blockInfoIndex in 0..tagWithBlockInfo.tagCount()) {
                 val tagWithSingleBlock = tagWithBlockInfo.getCompoundTagAt(blockInfoIndex)
 
-                val modifiers = tagWithSingleBlock.getModifiers() ?: continue
+                val modifiers = getModifiers(tagWithSingleBlock)
                 val pos = Position.readFrom(tagWithSingleBlock)
 
                 info[pos] = modifiers
@@ -184,38 +112,38 @@ object MultiBlockWrapper {
     }
 
 
-    fun ItemStack.getTagListWithBlocksInfo(): NBTTagList {
-        val rootTag = getOrCreateTag()
+    fun getTagListWithBlocksInfo(stack: ItemStack): NBTTagList {
+        val rootTag = stack.getOrCreateTag()
         if (!rootTag.hasKey(BLOCK_MODIFIERS_NAME)) rootTag.setTag(BLOCK_MODIFIERS_NAME, NBTTagList())
         return rootTag.getTagList(BLOCK_MODIFIERS_NAME, TAG_COMPOUND)
     }
 
-    fun NBTTagCompound.getTagListWithModifiers(): NBTTagList {
-        if (!this.hasKey(MODIFIERS_NAME)) this.setTag(MODIFIERS_NAME, NBTTagList())
-        return this.getTagList(MODIFIERS_NAME, TAG_COMPOUND)
+    fun getTagListWithModifiers(nbt: NBTTagCompound): NBTTagList {
+        if (!nbt.hasKey(MODIFIERS_NAME)) nbt.setTag(MODIFIERS_NAME, NBTTagList())
+        return nbt.getTagList(MODIFIERS_NAME, TAG_COMPOUND)
     }
 
     fun ItemStack.setBlockInfo(pos: Position, modifiers: ArrayList<Modifier>) {
-        val result = this.getTagListWithBlocksInfo().tagList.firstOrNull { tag ->
+        val result = getTagListWithBlocksInfo(this).tagList.firstOrNull { tag ->
             if (tag !is NBTTagCompound) return@firstOrNull false
             return@firstOrNull (Position.readFrom(tag) == pos)
         }?.also { foundTag ->
-            (foundTag as NBTTagCompound).setModifiers(modifiers)
+            setModifiers((foundTag as NBTTagCompound), modifiers)
         }
         if (result == null) {
             val nbtForBlock = NBTTagCompound()
             pos.writeTo(nbtForBlock)
-            nbtForBlock.setModifiers(modifiers)
-            this.getTagListWithBlocksInfo().appendTag(nbtForBlock)
+            setModifiers(nbtForBlock, modifiers)
+            getTagListWithBlocksInfo(this).appendTag(nbtForBlock)
         }
     }
 
-    fun ItemStack.setMasterPos(pos: Position) {
-        getOrCreateTag().setIntArray(MASTER_BLOCK_POS, intArrayOf(pos.x, pos.y, pos.z))
+    fun setMasterPos(stack: ItemStack, pos: Position) {
+        stack.getOrCreateTag().setIntArray(MASTER_BLOCK_POS, intArrayOf(pos.x, pos.y, pos.z))
     }
-    fun ItemStack.getMasterPos() : Position? {
-        if(!this.getOrCreateTag().hasKey(MASTER_BLOCK_POS)) return null
-        val array = getOrCreateTag().getIntArray(MASTER_BLOCK_POS)
+    fun getMasterPos(stack: ItemStack) : Position? {
+        if(!stack.getOrCreateTag().hasKey(MASTER_BLOCK_POS)) return null
+        val array = stack.getOrCreateTag().getIntArray(MASTER_BLOCK_POS)
         return Position(array[0], array[1], array[2])
     }
 }
@@ -294,6 +222,3 @@ class Modifier(
     }
 }
 
-fun Any?.ifNull(expression: () -> Unit) {
-    if (this == null) expression()
-}

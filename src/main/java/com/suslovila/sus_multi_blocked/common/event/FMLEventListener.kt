@@ -20,10 +20,10 @@ class FMLEventListener {
             val isLeftClickWithZoneSelector =
                 action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK &&
                         heldItemStack.item is ItemMultiBlockFormer &&
-                        heldItemStack.getMode() == MultiBlockWrapper.MODE.ZONE_SELECTOR
+                        getMode(heldItemStack) == MultiBlockWrapper.MODE.ZONE_SELECTOR
 
             if (isLeftClickWithZoneSelector) {
-                heldItemStack.setFirstBound(event.x, event.y, event.z)
+                setFirstBound(heldItemStack, event.x, event.y, event.z)
                 event.isCanceled = true
             }
         }

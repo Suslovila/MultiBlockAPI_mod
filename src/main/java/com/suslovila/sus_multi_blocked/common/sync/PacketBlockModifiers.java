@@ -58,8 +58,6 @@ public class PacketBlockModifiers implements IMessage {
             if (stack == null) return null;
 
             if (stack.getItem() instanceof ItemMultiBlockFormer) {
-                NBTTagCompound tag = SusNBTHelper.INSTANCE.getOrCreateTag(stack);
-                NBTTagList listWithBlockInfo = MultiBlockWrapper.INSTANCE.getTagListWithBlocksInfo(stack);
                 MultiBlockWrapper.INSTANCE.setBlockInfo(stack, packet.pos, packet.modifiers);
             }
             return null;
