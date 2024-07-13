@@ -6,8 +6,6 @@ import com.suslovila.sus_multi_blocked.api.multiblock.MultiStructureElement
 import net.minecraft.block.Block
 import net.minecraft.block.BlockContainer
 import net.minecraft.block.material.Material
-import net.minecraft.entity.item.EntityItem
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.world.World
@@ -39,7 +37,7 @@ abstract class MultiStructureBlock<D : AdditionalData, E : MultiStructureElement
         }
     }
 
-//    override fun getItemDropped(meta: Int, random: Random?, fortune: Int): Item? = null
+    override fun getItemDropped(meta: Int, random: Random?, fortune: Int): Item? = null
 //
 //    override fun dropBlockAsItem(world: World?, x: Int, y: Int, z: Int, itemIn: ItemStack?) {
 //        if (world == null) return
@@ -58,17 +56,9 @@ abstract class MultiStructureBlock<D : AdditionalData, E : MultiStructureElement
 //        }
 //    }
 
-//    fun getAllDrops(world: World?, x: Int, y: Int, z: Int, metadata: Int, fortune: Int): ArrayList<ItemStack> {
-//        if (world == null) return arrayListOf()
-//        val innerTile = world.getTileEntity(x, y, z)
-//        if (innerTile is ITileMultiStructureElement) {
-//            val element = multiStructure.elements[innerTile.getElementIndex()]
-//            val blockWhenDeconstructed = Block.getBlockFromName(element.storedBlock)
-//            val itemBlock = ItemStack(blockWhenDeconstructed, element.meta)
-//            return arrayListOf(itemBlock)
-//        }
-//        return arrayListOf()
-//    }
+    override fun getDrops(world: World?, x: Int, y: Int, z: Int, metadata: Int, fortune: Int): ArrayList<ItemStack> {
+        return arrayListOf()
+    }
 //
 //    override fun breakBlock(world: World?, x: Int, y: Int, z: Int, blockBroken: Block?, meta: Int) {
 //        if (world == null) return
@@ -94,13 +84,6 @@ abstract class MultiStructureBlock<D : AdditionalData, E : MultiStructureElement
 //    }
 
     override fun getItem(world: World?, x: Int, y: Int, z: Int): Item? {
-        if (world == null) return null
-        val innerTile = world.getTileEntity(x, y, z)
-        if (innerTile is ITileMultiStructureElement) {
-            val element = multiStructure.elements[innerTile.getElementIndex()]
-            val blockWhenDeconstructed = Block.getBlockFromName(element.storedBlock)
-            return ItemStack(blockWhenDeconstructed, element.meta).item
-        }
         return null
     }
 
@@ -123,26 +106,27 @@ abstract class MultiStructureBlock<D : AdditionalData, E : MultiStructureElement
 //    }
 
 
-    override fun removedByPlayer(
-        world: World,
-        player: EntityPlayer,
-        x: Int,
-        y: Int,
-        z: Int,
-        willHarvest: Boolean
-    ): Boolean {
-        this.harvestBlock(world, player, x, y, z, 0)
-        return world.setBlockToAir(x, y, z);
-    }
+//    override fun removedByPlayer(
+//        world: World,
+//        player: EntityPlayer,
+//        x: Int,
+//        y: Int,
+//        z: Int,
+//        willHarvest: Boolean
+//    ): Boolean {
+//        if(world.isRemote) return false
+//        this.harvestBlock(world, player, x, y, z, 0)
+//        return world.setBlockToAir(x, y, z)
+//    }
 
 
-    override fun getDrops(world: World, x: Int, y: Int, z: Int, metadata: Int, fortune: Int): ArrayList<ItemStack> {
-        val innerTile = world.getTileEntity(x, y, z)
-        if (innerTile is ITileMultiStructureElement) {
-            val element = multiStructure.elements[innerTile.getElementIndex()]
-            val blockWhenDeconstructed = Block.getBlockFromName(element.storedBlock)
-            return arrayListOf(ItemStack(blockWhenDeconstructed, element.meta))
-        }
-        return arrayListOf()
-    }
+//    override fun getDrops(world: World, x: Int, y: Int, z: Int, metadata: Int, fortune: Int): ArrayList<ItemStack> {
+//        val innerTile = world.getTileEntity(x, y, z)
+//        if (innerTile is ITileMultiStructureElement) {
+//            val element = multiStructure.elements[innerTile.getElementIndex()]
+//            val blockWhenDeconstructed = Block.getBlockFromName(element.storedBlock)
+//            return arrayListOf(ItemStack(blockWhenDeconstructed, element.meta))
+//        }
+//        return arrayListOf()
+//    }
 }

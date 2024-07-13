@@ -5,6 +5,7 @@ import com.google.gson.stream.JsonReader
 import com.suslovila.sus_multi_blocked.api.SusTypeToken
 import com.suslovila.sus_multi_blocked.api.fromJsons
 import com.suslovila.sus_multi_blocked.api.multiblock.block.ITileMultiStructureElement
+import com.suslovila.sus_multi_blocked.api.multiblock.block.TileDefaultMultiStructureElement
 import com.suslovila.sus_multi_blocked.utils.*
 import net.minecraft.block.Block
 import net.minecraft.entity.player.EntityPlayer
@@ -158,7 +159,16 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
         rotationAngle: Int,
         player: EntityPlayer?
     ) {
-        elements.forEachIndexed {index, element -> element.construct(world, masterPosition, facing, rotationAngle, index, player) }
+        elements.forEachIndexed { index, element ->
+            element.construct(
+                world,
+                masterPosition,
+                facing,
+                rotationAngle,
+                index,
+                player
+            )
+        }
         onCreated(world, masterPosition, facing, rotationAngle, player)
     }
 
@@ -167,6 +177,7 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
 
 
     open fun deconstruct(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int) {
+        if (world.isRemote) return
         elements.forEach { it.deconstruct(world, masterPosition, facing, angle) }
     }
 
@@ -178,9 +189,13 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
         angle: Int,
         player: EntityPlayer?
     ) {
-        elements.map { it.getRealPos(masterWorldPosition, facing, angle) }.forEach {
-            world.markBlockForUpdate(it.x, it.y, it.z)
+        // save and sync
 
+        elements.map { it.getRealPos(masterWorldPosition, facing, angle) }.forEach { pos ->
+            world.markBlockForUpdate(pos.x, pos.y, pos.z)
+            world.getTile(pos)?.let { tile ->
+                world.markTileEntityChunkModified(pos.x, pos.y, pos.z, tile)
+            }
         }
     }
 }
@@ -228,14 +243,17 @@ abstract class MultiStructureElement<D : AdditionalData>(
         index: Int,
         player: EntityPlayer?,
     ) {
+        if (world.isRemote) return
         val realPos = masterWorldPosition + getRealOffset(facing, angle)
         world.setBlock(realPos, additionalData.fillingBlock)
-        val tile = (world.getTile(realPos) as? ITileMultiStructureElement) ?: return
-        tile.setMasterPos(masterWorldPosition)
-        tile.setFacing(facing)
-        tile.setRotationAngle(angle)
-        // required for drops
-        tile.setElementIndex(index)
+        val tile = world.getTile(realPos)
+        (world.getTile(realPos) as? ITileMultiStructureElement)?.let { element ->
+            element.setMasterPos(masterWorldPosition)
+            element.setFacing(facing)
+            element.setRotationAngle(angle)
+            // required for drops
+            element.setElementIndex(index)
+        }
     }
 
     open fun isStillValid(
@@ -259,9 +277,6 @@ abstract class MultiStructureElement<D : AdditionalData>(
         angle: Int
     ) {
         val realPos = masterWorldPosition + getRealOffset(facing, angle)
-        val block = world.getBlock(realPos)
-        if (block == null || block != additionalData.fillingBlock) return
-
         world.setBlock(realPos.x, realPos.y, realPos.z, Block.getBlockFromName(storedBlock), meta, 2)
     }
 
