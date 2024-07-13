@@ -5,7 +5,6 @@ import com.google.gson.stream.JsonReader
 import com.suslovila.sus_multi_blocked.api.SusTypeToken
 import com.suslovila.sus_multi_blocked.api.fromJsons
 import com.suslovila.sus_multi_blocked.api.multiblock.block.ITileMultiStructureElement
-import com.suslovila.sus_multi_blocked.api.multiblock.block.TileDefaultMultiStructureElement
 import com.suslovila.sus_multi_blocked.utils.*
 import net.minecraft.block.Block
 import net.minecraft.entity.player.EntityPlayer
@@ -177,7 +176,6 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
 
 
     open fun deconstruct(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int) {
-        if (world.isRemote) return
         elements.forEach { it.deconstruct(world, masterPosition, facing, angle) }
     }
 
@@ -243,10 +241,8 @@ abstract class MultiStructureElement<D : AdditionalData>(
         index: Int,
         player: EntityPlayer?,
     ) {
-        if (world.isRemote) return
         val realPos = masterWorldPosition + getRealOffset(facing, angle)
         world.setBlock(realPos, additionalData.fillingBlock)
-        val tile = world.getTile(realPos)
         (world.getTile(realPos) as? ITileMultiStructureElement)?.let { element ->
             element.setMasterPos(masterWorldPosition)
             element.setFacing(facing)
@@ -277,7 +273,12 @@ abstract class MultiStructureElement<D : AdditionalData>(
         angle: Int
     ) {
         val realPos = masterWorldPosition + getRealOffset(facing, angle)
-        world.setBlock(realPos.x, realPos.y, realPos.z, Block.getBlockFromName(storedBlock), meta, 2)
+        val block = world.getBlock(realPos)
+        if (block == null || block != additionalData.fillingBlock) return
+
+        val placedBlock = Block.getBlockFromName(storedBlock)
+        world.setBlock(realPos.x, realPos.y, realPos.z, placedBlock, meta, 2)
+
     }
 
     fun getRealPos(masterPosition: Position, facing: ForgeDirection, angle: Int) =
