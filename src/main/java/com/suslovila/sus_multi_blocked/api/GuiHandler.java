@@ -38,7 +38,6 @@ public class GuiHandler implements IGuiHandler {
                     return null;
                 }
                 return new GuiMultiBlockFormer(player.inventory, player.getHeldItem(), new Position(x, y, z));
-
             }
         }
         return null;

@@ -158,7 +158,7 @@ tasks.register('copySrgs', Copy) {
     from plugins.getPlugin("forge").delayedFile('{SRG_DIR}')
 
     include '**/*.srg'
-    into 'build/srgs'
+    into 'build/srgs'o
 }
 
 compileJava.dependsOn copySrgs

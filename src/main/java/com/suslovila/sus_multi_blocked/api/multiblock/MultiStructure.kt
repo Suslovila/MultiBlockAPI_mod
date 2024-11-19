@@ -19,10 +19,21 @@ import java.io.InputStreamReader
 //by default all offsets are made for UP sustain! The "real offset" represents an offset for current facing!
 
 abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
+    // source path to Json file. As Example, Check out MultiBlockTower
     val sourcePath: String,
+
+    // class type of structure elements
     val dataClass: Class<E>,
+
+    // facings that can be valid for multiStructure
     val availableFacings: List<ForgeDirection> = arrayListOf(ForgeDirection.UP),
+
+    // when faced someWhere, if also should be valid if rotated, return true, else - return false. Requires additional checks, if your multiStructure is symmetric, return false
     val rotatable: Boolean = false,
+
+    // determines if multiStructure should try to build up if any block clicked or only if master block clicked. Obviously, if EACH_BLOCK is chosen, increases checks amount A LOT. If your structure contains
+    // more than 150 blocks, I do not recommend use EACH_BLOCK
+
     val validationType: VALIDATION_TYPE = VALIDATION_TYPE.MASTER
 ) {
 
@@ -42,6 +53,12 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     }
 
 
+    /** tries to construct multiStructure at provided position
+     * @param world - world in
+     * @param clickedPosition - provided position
+     * @param player - player
+     * @return construction success
+     */
     open fun tryConstruct(world: World, clickedPosition: Position, player: EntityPlayer?): Boolean {
         val block = world.getBlock(clickedPosition) ?: return false
         if (validationType == VALIDATION_TYPE.EACH_BLOCK) {
@@ -99,6 +116,11 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
         return false
     }
 
+    /**
+     * checks if structure can be created
+     *
+     * @return if structure can be created
+     */
     open fun canConstruct(world: World, clickedPosition: Position, player: EntityPlayer?): Boolean {
         val block = world.getBlock(clickedPosition) ?: return false
         if (validationType == VALIDATION_TYPE.EACH_BLOCK) {
@@ -151,6 +173,10 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     ): Boolean =
         elements.all { it.canConstruct(world, masterWorldPosition = masterPosition, facing, rotationAngle) }
 
+    /** fired after success checks of build possibility
+     * firstly changes world, and then send packets to client
+     *
+     */
     open fun finaliseConstruction(
         world: World,
         masterPosition: Position,
@@ -174,12 +200,18 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     open fun isStillValid(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int): Boolean =
         elements.all { it.isStillValid(world, masterPosition, facing, angle) }
 
-
+    /**
+     * deconstructs the multiblock
+     */
     open fun deconstruct(world: World, masterPosition: Position, facing: ForgeDirection, angle: Int) {
         elements.forEach { it.deconstruct(world, masterPosition, facing, angle) }
     }
 
     abstract fun <T : TileEntity> render(tile: T, playersOffset: SusVec3, partialTicks: Float)
+
+    /**
+     * saves changes on disk and sends packets
+     */
     open fun onCreated(
         world: World,
         masterWorldPosition: Position,
@@ -198,7 +230,7 @@ abstract class MultiStructure<D : AdditionalData, E : MultiStructureElement<D>>(
     }
 }
 
-
+// represents a part of structure (one block)
 abstract class MultiStructureElement<D : AdditionalData>(
     val x: Int,
     val y: Int,

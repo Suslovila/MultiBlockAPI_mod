@@ -18,12 +18,12 @@ abstract class TileDefaultMultiStructureElement(
     ITileMultiStructureElement {
     abstract val packetId: Int
 
-    lateinit var structureMasterPos: Position
+    var structureMasterPos: Position = Position(0, 0, 0)
 
     // required to correctly deconstruct multiStructure
-    lateinit var structureFacing: ForgeDirection
-    var structureRotationAngle: Int by Delegates.notNull()
-    var correspondingElementIndex: Int by Delegates.notNull()
+    var structureFacing: ForgeDirection = ForgeDirection.UP
+    var structureRotationAngle: Int = 0
+    var correspondingElementIndex: Int = 0
 
     companion object {
         val MULTI_STRUCTURE_FACING_NBT = SusMultiBlocked.prefixAppender.doAndGet("structure_facing")
@@ -88,6 +88,7 @@ abstract class TileDefaultMultiStructureElement(
     override fun setElementIndex(index: Int) {
         this.correspondingElementIndex = index
     }
+
     open fun markForSaveAndSync() {
         markForSave()
         markForSync()
